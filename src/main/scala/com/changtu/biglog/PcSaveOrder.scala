@@ -119,7 +119,17 @@ object PcSaveOrder {
       (Json.parse(p(3)) \ "ordersJson").asOpt[String] match { case Some(a) => (Json.parse(a) \ "orders" \\ "endId").map(_.as[String]).mkString(",") case None => "" },
       p(5),
       (Json.parse(p(3)) \ "ordersJson").asOpt[String] match { case Some(a) => (Json.parse(a) \ "orders" \\ "orderCount").map(_.as[Long]).mkString(",") case None => "" },
-      (Json.parse(p(3)) \ "ordersJson").asOpt[String] match { case Some(a) => (Json.parse(a) \ "orders" \\ "arMoney").map(_.as[Float]).mkString(",") case None => "" },
+      (Json.parse(p(3)) \ "ordersJson").asOpt[String] match { case Some(a) => (Json.parse(a) \ "orders" \\ "arMoney").map(p => {
+        // 电商存在数值型和字符型的数据
+        try {
+          p.as[Float]
+        } catch {
+          case e: Exception => p.as[String]
+          case _: Throwable => p.as[String]
+        }
+      }).mkString(",")
+      case None => ""
+      },
       (Json.parse(p(3)) \ "ordersJson").asOpt[String] match { case Some(a) => (Json.parse(a) \ "orders" \\ "planDate").map(_.as[String]).mkString(",") case None => "" },
       if (p(4).length == 0) "" else (Json.parse(p(4)) \ "flag").as[String]))
 

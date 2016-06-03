@@ -171,12 +171,6 @@
             </exclusions>
         </dependency>
 
-        <!-- Cloudera Manager 依赖包 -->
-        <dependency>
-            <groupId>com.cloudera.api</groupId>
-            <artifactId>cloudera-manager-api</artifactId>
-            <version>5.7.0</version> <!-- Or the CM version you have -->
-        </dependency>
     </dependencies>
 
     <build>

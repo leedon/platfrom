@@ -1,8 +1,6 @@
 package com.changtu.biglog
 
 import java.net.URI
-import java.sql.{Connection, DriverManager, PreparedStatement, Timestamp}
-import java.text.SimpleDateFormat
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -193,7 +191,7 @@ object UbhvrIps {
         p(11) + fieldTerminate +
         p(12) + fieldTerminate +
         p(13) + fieldTerminate +
-        p(26) + fieldTerminate +
+        (if (p.length == 29) p(26) + p(27) else p(26)) + fieldTerminate +
         p(15) + fieldTerminate +
         p(16) + fieldTerminate +
         p(17) + fieldTerminate +
@@ -202,7 +200,7 @@ object UbhvrIps {
         p(23) + fieldTerminate +
         p(24) + fieldTerminate +
         p(25) + fieldTerminate +
-        p(27) + fieldTerminate +
+        (if (p.length == 29) p(28) else p(27)) + fieldTerminate +
         p(19) + fieldTerminate +
         p(7) + fieldTerminate +
         p(14) + fieldTerminate +
