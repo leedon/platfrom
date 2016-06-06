@@ -1,8 +1,6 @@
 package com.changtu.biglog
 
 import java.net.URI
-import java.sql.{Connection, DriverManager, PreparedStatement, Timestamp}
-import java.text.SimpleDateFormat
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
@@ -61,58 +59,6 @@ object UbhvrIpsHis {
     } finally {}
   }
 
-  /*//将数据加载到Oracle
-  def toOracle(iterator: Iterator[Array[String]], props: Map[String, String], ipMaps: scala.collection.Map[String, List[BiOdsCmsIps]]): Unit = {
-    var conn: Connection = null
-    var ps: PreparedStatement = null
-    val sql = "INSERT INTO bi_ods_user_bhvr_ips\n  (pk_user_analysis_date,\n   unique_id,\n   user_id,\n   type_cd,\n   log_url,\n   log_his_refer,\n   title,\n   charset,\n   log_platform,\n   cookie_enabled,\n   os_language,\n   sys_language,\n   sr,\n   VALUE,\n   client_ip,\n   server_record_time,\n   user_agent,\n   browser,\n   fk_user_id,\n   page_id,\n   visit_source,\n   visit_path,\n   city_id,\n   create_date,\n   \n   modified_date,\n   TIME,\n   transfered_date,\n   complete_date,\n   static_date)\nVALUES\n  (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    try {
-      conn = DriverManager.getConnection(props.getOrElse("jdbc.url.ods", "jdbc:oracle:thin:@172.19.0.94:1521:orcl"),
-        props.getOrElse("jdbc.username.ods", "tts_ods"),
-        props.getOrElse("jdbc.password.ods", "tts_ods"))
-
-      iterator.foreach(p => {
-        ps = conn.prepareStatement(sql)
-        ps.setString(1, p(0))
-        ps.setString(2, p(1))
-        ps.setString(3, p(2))
-        ps.setString(4, p(3))
-        ps.setString(5, p(4))
-        ps.setString(6, p(5))
-        ps.setString(7, p(6))
-        ps.setString(8, p(8))
-        ps.setString(9, p(9))
-        ps.setString(10, p(10))
-        ps.setString(11, p(11))
-        ps.setString(12, p(12))
-        ps.setString(13, p(13))
-        ps.setString(14, p(26))
-        ps.setString(15, p(15))
-        ps.setString(16, p(16))
-        ps.setString(17, p(17))
-        ps.setString(18, p(20))
-        ps.setString(19, p(21))
-        ps.setString(20, p(23))
-        ps.setString(21, p(24))
-        ps.setString(22, p(25))
-        ps.setString(23, getCity(fixLength(p(15)), ipMaps))
-        ps.setTimestamp(24, new Timestamp(new SimpleDateFormat("yyyy-MM-dd H:mm:ss:S").parse(p(19)).getTime))
-        ps.executeUpdate()
-        ps.close()
-      }
-      )
-    } catch {
-      case e: Exception => throw e
-    } finally {
-      if (ps != null) {
-        ps.close()
-      }
-      if (conn != null) {
-        conn.close()
-      }
-    }
-  }*/
-
   //获取JDBC配置信息
   def getJdbcProps: Map[String, String] = {
     var props: Map[String, String] = Map()
@@ -130,7 +76,11 @@ object UbhvrIpsHis {
 
   def main(args: Array[String]) {
 
+    // 需要处理的文件名，可以通过模糊匹配来做
     val userBhvrDir = args(0)
+
+    // 是否在HDFS上要额外保存一份
+    val saveF = args(1)
     val hdfsPath = "hdfs://nameservice1:8020"
     val hdfsURI = new URI(hdfsPath)
     val hdfsConf = new Configuration()
@@ -196,6 +146,17 @@ object UbhvrIpsHis {
         p(22))
       .coalesce(1, shuffle = true)
       .saveAsTextFile(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_"))
+
+    if (saveF == "Y") {
+      //save to oracle
+      val saveFOut = new Path(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_2_"))
+      if (hdfs.exists(output)) hdfs.delete(saveFOut, true)
+
+      // 保存原数据
+      val bhvrHourlyTmp = bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 27).coalesce(100, shuffle = true)
+        .map(p => p.mkString(fieldTerminate) + fieldTerminate + getCity(fixLength(p(15)), ipMaps))
+      bhvrHourlyTmp.repartition(1).saveAsTextFile(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_2_"))
+    }
 
     sc.stop()
   }
