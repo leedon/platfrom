@@ -21,8 +21,7 @@ import scala.collection.JavaConversions._
 
 
 class HBaseClient(config: Configuration = HBaseConfiguration.create(), tablePath: String,
-                  columnFamilies: TraversableOnce[String], limit: Option[Int] = None,
-                  verboseMode: Boolean = false, caching: Int = 5000) {
+                  limit: Option[Int] = None, verboseMode: Boolean = false, caching: Int = 5000) {
 
   val Log = com.twitter.logging.Logger.get()
 
@@ -37,6 +36,9 @@ class HBaseClient(config: Configuration = HBaseConfiguration.create(), tablePath
 
   val connection = ConnectionFactory.createConnection(config)
   val admin = connection.getAdmin
+  val tableName = TableName.valueOf(tablePath)
+  val table = connection.getTable(tableName)
+  val columnFamilies = table.getTableDescriptor.getColumnFamilies.map( p => p.getNameAsString)
 
   def getScan: Scan = {
     val scan = new Scan
