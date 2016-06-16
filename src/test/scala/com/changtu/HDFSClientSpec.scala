@@ -1,7 +1,7 @@
 package com.changtu
 
 import com.changtu.hdfs.HDFSClient
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by lubinsu on 2016/6/11.

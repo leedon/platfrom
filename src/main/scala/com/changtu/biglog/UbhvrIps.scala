@@ -175,7 +175,7 @@ object UbhvrIps {
     //.saveAsTextFile(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_"))
 
     //save to tmp directory for next step
-    val outputTmp = new Path(hdfsPath.concat("/user/hadoop/behavior/_tmp_"))
+    val outputTmp = new Path(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_"))
     if (hdfs.exists(outputTmp)) hdfs.delete(outputTmp, true)
     bhvrHourlyTmp.map(_.split(fieldTerminate))
       .map(p => p(0) + fieldTerminate +
@@ -206,7 +206,7 @@ object UbhvrIps {
         p(14) + fieldTerminate +
         p(18) + fieldTerminate +
         p(19) + fieldTerminate +
-        p(22)).saveAsTextFile(hdfsPath.concat("/user/hadoop/behavior/_tmp_"))
+        p(22)).saveAsTextFile(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_"))
 
     //save to hdfs
     bhvrHourlyTmp.repartition(1).saveAsTextFile(targetFile)

@@ -111,7 +111,7 @@ object UbhvrIpsHis {
     val ipMaps = ipRdd.collectAsMap()
 
     //save to oracle
-    val output = new Path(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_"))
+    val output = new Path(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_his_"))
     if (hdfs.exists(output)) hdfs.delete(output, true)
 
     bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 27).coalesce(100, shuffle = true)
@@ -145,17 +145,17 @@ object UbhvrIpsHis {
         p(19) + fieldTerminate +
         p(22))
       .coalesce(1, shuffle = true)
-      .saveAsTextFile(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_"))
+      .saveAsTextFile(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_his_"))
 
     if (saveF == "Y") {
       //save to oracle
-      val saveFOut = new Path(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_2_"))
+      val saveFOut = new Path(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_his_2_"))
       if (hdfs.exists(output)) hdfs.delete(saveFOut, true)
 
       // 保存原数据
       val bhvrHourlyTmp = bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 27).coalesce(100, shuffle = true)
         .map(p => p.mkString(fieldTerminate) + fieldTerminate + getCity(fixLength(p(15)), ipMaps))
-      bhvrHourlyTmp.repartition(1).saveAsTextFile(hdfsPath.concat("/user/hadoop/behavior/_tmp_his_2_"))
+      bhvrHourlyTmp.repartition(1).saveAsTextFile(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_his_2_"))
     }
 
     sc.stop()

@@ -1,6 +1,6 @@
 package com.changtu
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable.Stack
 

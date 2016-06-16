@@ -1,6 +1,6 @@
 package com.changtu
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by lubinsu on 2016/6/13.

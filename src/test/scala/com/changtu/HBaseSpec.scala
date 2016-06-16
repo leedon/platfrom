@@ -19,10 +19,8 @@ class HBaseSpec extends FlatSpec with Matchers {
     Bytes.toString(value) should be("1251212,112312,325123")
   }
 
-  /*it should "get all label details of 1735909" in {
+  it should "get all label details of 872547" in {
     val hbaseClient = new HBaseClient(tablePath = "bi_user_label")
-    val filter = HBaseFilters.getRowkeyPrefixFilter("1735909_")
-    hbaseClient.scanPrefix("1735909_", )
-    hbaseClient.get("1735909", filter).getValue()
-  }*/
+    println(hbaseClient.scanPrefix("872547_", p => p.getValue(Bytes.toBytes("label_info"), Bytes.toBytes("label_code"))))
+  }
 }

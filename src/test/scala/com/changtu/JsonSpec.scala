@@ -1,7 +1,7 @@
 package com.changtu
 
 import com.twitter.logging.Logger
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 
 /**
