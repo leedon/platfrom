@@ -2,6 +2,7 @@ package com.changtu.hdfs
 
 /**
   * Created by lubinsu on 2016/6/8.
+  * HDFS工具类
   */
 
 import org.apache.hadoop.conf.Configuration
