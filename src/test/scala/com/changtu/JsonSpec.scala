@@ -6,6 +6,7 @@ import play.api.libs.json.Json
 
 /**
   * Created by lubinsu on 2016/6/14.
+  * 测试JSON类库
   */
 class JsonSpec extends FlatSpec with Matchers {
 

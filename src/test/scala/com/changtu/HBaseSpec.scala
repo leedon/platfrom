@@ -6,6 +6,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by lubinsu on 2016/6/15.
+  * HBase工具类单元测试
   */
 class HBaseSpec extends FlatSpec with Matchers {
 
@@ -20,7 +21,9 @@ class HBaseSpec extends FlatSpec with Matchers {
   }
 
   it should "get all label details of 872547" in {
-    val hbaseClient = new HBaseClient(tablePath = "bi_user_label")
-    println(hbaseClient.scanPrefix("872547_", p => p.getValue(Bytes.toBytes("label_info"), Bytes.toBytes("label_code"))))
+
+    val hbaseClient = new HBaseClient(tablePath = "bi_user_label"/*, verboseMode = true*/)
+
+    hbaseClient.scanPrefix("872547_", p => println(Bytes.toString(p.getValue(Bytes.toBytes("label_info"), Bytes.toBytes("label_code")))))
   }
 }
