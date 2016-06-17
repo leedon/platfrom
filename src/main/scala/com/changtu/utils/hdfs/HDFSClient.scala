@@ -1,4 +1,4 @@
-package com.changtu.hdfs
+package com.changtu.utils.hdfs
 
 /**
   * Created by lubinsu on 2016/6/8.
@@ -9,26 +9,27 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, _}
 
 abstract class AbstractFSClient {
-
-}
-
-object HDFSClient extends AbstractFSClient {
   val conf = new Configuration()
+
+  val confHome = if (System.getenv("CONF_HOME") == "") "/appl/conf" else System.getenv("CONF_HOME")
   // 加载HADOOP配置文件
   try {
-    conf.addResource(new Path("E:\\conf\\hdfs-site.xml"))
-    conf.addResource(new Path("E:\\conf\\core-site.xml"))
-    conf.addResource(new Path("E:\\conf\\yarn-site.xml"))
-    conf.addResource(new Path("E:\\conf\\mapred-site.xml"))
+    conf.addResource(new Path(confHome + "/hdfs-site.xml"))
+    conf.addResource(new Path(confHome + "/core-site.xml"))
+    conf.addResource(new Path(confHome + "/yarn-site.xml"))
+    conf.addResource(new Path(confHome + "/mapred-site.xml"))
   } catch {
     case e: IllegalArgumentException =>
-      conf.addResource(new Path("/appl/conf/hdfs-site.xml"))
-      conf.addResource(new Path("/appl/conf/core-site.xml"))
-      conf.addResource(new Path("/appl/conf/yarn-site.xml"))
-      conf.addResource(new Path("/appl/conf/mapred-site.xml"))
+      conf.addResource(new Path(confHome + "/hdfs-site.xml"))
+      conf.addResource(new Path(confHome + "/core-site.xml"))
+      conf.addResource(new Path(confHome + "/yarn-site.xml"))
+      conf.addResource(new Path(confHome + "/mapred-site.xml"))
   }
 
   val hdfs = FileSystem.get(conf)
+}
+
+object HDFSClient extends AbstractFSClient {
 
   /**
     * delete hdfs files

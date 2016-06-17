@@ -1,6 +1,6 @@
 package com.changtu
 
-import com.changtu.hdfs.HDFSClient
+import com.changtu.utils.hdfs.HDFSClient
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -10,7 +10,7 @@ import org.scalatest.{FlatSpec, Matchers}
 class HDFSClientSpec extends FlatSpec with Matchers {
 
   "HDFS client" should "create a file" in {
-    HDFSClient.createDirectory("/user/hadoop/biglog/test", deleteF = true) should be(true)
+    HDFSClient.createDirectory("/user/hadoop/test", deleteF = true) should be(true)
     HDFSClient.release()
   }
 }

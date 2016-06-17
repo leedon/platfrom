@@ -1,4 +1,4 @@
-package com.changtu.hbase
+package com.changtu.utils.hbase
 
 /**
   * Created by lubinsu on 2016/6/7.
@@ -24,14 +24,15 @@ class HBaseClient(config: Configuration = HBaseConfiguration.create(), tablePath
                   limit: Option[Int] = None, verboseMode: Boolean = false, caching: Int = 5000) {
 
   val Log = com.twitter.logging.Logger.get()
+  val confHome = if (System.getenv("CONF_HOME") == "") "/appl/conf" else System.getenv("CONF_HOME")
 
   try {
-    config.addResource(new Path("E:\\conf\\hbase-site.xml"))
-    config.addResource(new Path("E:\\conf\\core-site.xml"))
+    config.addResource(new Path(confHome + "/hbase-site.xml"))
+    config.addResource(new Path(confHome + "/core-site.xml"))
   } catch {
     case e: IllegalArgumentException =>
-      config.addResource(new Path("/appl/conf/hbase-site.xml"))
-      config.addResource(new Path("/appl/conf/core-site.xml"))
+      config.addResource(new Path(confHome + "/hbase-site.xml"))
+      config.addResource(new Path(confHome + "/core-site.xml"))
   }
 
   val connection = ConnectionFactory.createConnection(config)

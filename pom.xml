@@ -35,6 +35,14 @@
         </repository>
     </repositories>
 
+    <distributionManagement>
+        <repository>
+            <id>rest-repository</id>
+            <name>rest Repository</name>
+            <url>file://${basedir}/target/deploy</url>
+        </repository>
+    </distributionManagement>
+
     <pluginRepositories>
         <pluginRepository>
             <id>scala-tools.org</id>

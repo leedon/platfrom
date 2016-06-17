@@ -1,4 +1,4 @@
-package com.changtu.spark
+package com.changtu.utils.spark
 
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
@@ -16,6 +16,7 @@ abstract class AbstractSparkClient {
     * @return SparkContext
     */
   def getSparkContext(name: String): SparkContext = {
+
     val confHome = if (System.getenv("CONF_HOME") == "") "/appl/conf" else System.getenv("CONF_HOME")
 
     val sc = new SparkContext(new SparkConf().setAppName(name))
