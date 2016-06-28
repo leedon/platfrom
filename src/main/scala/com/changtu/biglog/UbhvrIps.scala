@@ -181,16 +181,16 @@ object UbhvrIps {
       .map(p => p(0) + fieldTerminate +
         p(1) + fieldTerminate +
         p(2) + fieldTerminate +
-        p(3) + fieldTerminate +
+        (if (p(3).length > 100) p(3).substring(1, 100) else p(3)) + fieldTerminate +
         p(4) + fieldTerminate +
         p(5) + fieldTerminate +
         p(6) + fieldTerminate +
-        p(8) + fieldTerminate +
-        p(9) + fieldTerminate +
-        p(10) + fieldTerminate +
+        (if (p(8).length > 100) p(8).substring(1, 100) else p(8)) + fieldTerminate +
+        (if (p(9).length > 100) p(9).substring(1, 100) else p(9)) + fieldTerminate +
+        (if (p(10).length > 100) p(10).substring(1, 100) else p(10)) + fieldTerminate +
         p(11) + fieldTerminate +
         p(12) + fieldTerminate +
-        p(13) + fieldTerminate +
+        (if (p(13).length > 100) p(13).substring(1, 100) else p(13)) + fieldTerminate +
         (if (p.length == 29) p(26) + p(27) else p(26)) + fieldTerminate +
         p(15) + fieldTerminate +
         p(16) + fieldTerminate +
@@ -198,11 +198,11 @@ object UbhvrIps {
         p(20) + fieldTerminate +
         p(21) + fieldTerminate +
         p(23) + fieldTerminate +
-        p(24) + fieldTerminate +
+        (if (p(24).length > 4000) p(24).substring(1, 4000) else p(24)) + fieldTerminate +
         p(25) + fieldTerminate +
         (if (p.length == 29) p(28) else p(27)) + fieldTerminate +
         p(19) + fieldTerminate +
-        p(7) + fieldTerminate +
+        (if (p(7).length > 100) p(7).substring(1, 100) else p(7)) + fieldTerminate +
         p(14) + fieldTerminate +
         p(18) + fieldTerminate +
         p(19) + fieldTerminate +

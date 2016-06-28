@@ -52,21 +52,40 @@
     </pluginRepositories>
 
     <dependencies>
+
         <!-- hadoop依赖包 -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
             <version>2.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
             <version>2.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
             <version>2.6.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -103,6 +122,7 @@
             <artifactId>spark-streaming_${scala.bigVersion}</artifactId>
             <version>1.6.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.bigVersion}</artifactId>
@@ -259,7 +279,7 @@
                 <configuration>
                     <scalaVersion>${scala.version}</scalaVersion>
                     <args>
-                        <arg>-target:jvm-1.7</arg>
+                        <arg>-target:jvm-1.5</arg>
                     </args>
                 </configuration>
             </plugin>

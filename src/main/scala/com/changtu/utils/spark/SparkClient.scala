@@ -1,5 +1,7 @@
 package com.changtu.utils.spark
 
+import com.changtu.utils.hdfs.HDFSClient
+import com.twitter.logging.Logger
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -18,8 +20,8 @@ abstract class AbstractSparkClient {
   def getSparkContext(name: String): SparkContext = {
 
     val confHome = if (System.getenv("CONF_HOME") == "") "/appl/conf" else System.getenv("CONF_HOME")
-
-    val sc = new SparkContext(new SparkConf().setAppName(name))
+    val sparkConf = new SparkConf().setAppName(name).setMaster("yarn-cluster")
+    val sc = new SparkContext(sparkConf)
 
     sc.hadoopConfiguration.addResource(new Path(confHome + "/hdfs-site.xml"))
     sc.hadoopConfiguration.addResource(new Path(confHome + "/core-site.xml"))
@@ -37,11 +39,21 @@ abstract class AbstractSparkClient {
     * @return HDFS RDD[String]
     */
   def getHadoopRDD(sc: SparkContext, path: String): RDD[String] = {
-    sc.textFile(path)
+
+    sc.textFile(HDFSClient.hdfs.getUri.toString.concat(path))
+
+  }
+
+  def saveToHDFS[T](rdd: RDD[T]): Unit = {
+    // rdd.saveAsTextFile()
   }
 
 }
 
 object SparkClient extends AbstractSparkClient {
-
+  def main(args: Array[String]) {
+    val log = Logger.get()
+    val sc = SparkClient.getSparkContext("Test")
+    log.info(SparkClient.getHadoopRDD(sc, "/user/hadoop/tts_ods/tts_ods.bi_ods_task_status.log").count().toString)
+  }
 }
