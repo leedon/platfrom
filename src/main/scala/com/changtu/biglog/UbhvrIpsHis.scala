@@ -114,20 +114,47 @@ object UbhvrIpsHis {
     val output = new Path(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_his_"))
     if (hdfs.exists(output)) hdfs.delete(output, true)
 
-    bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 27).coalesce(100, shuffle = true)
+    bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 27)
+      .filter(p => !(p(0).getBytes("GBK").length > 200
+        || p(1).getBytes("GBK").length > 100
+        || p(2).getBytes("GBK").length > 200
+        || p(3).getBytes("GBK").length > 100
+        || p(4).getBytes("GBK").length > 4000
+        || p(5).getBytes("GBK").length > 4000
+        || p(6).getBytes("GBK").length > 4000
+        || p(7).getBytes("GBK").length > 100
+        || p(8).getBytes("GBK").length > 100
+        || p(9).getBytes("GBK").length > 100
+        || p(10).getBytes("GBK").length > 100
+        || p(11).getBytes("GBK").length > 100
+        || p(12).getBytes("GBK").length > 100
+        || p(13).getBytes("GBK").length > 100
+        || p(14).getBytes("GBK").length > 100
+        || p(15).getBytes("GBK").length > 100
+        || p(16).getBytes("GBK").length > 100
+        || p(17).getBytes("GBK").length > 4000
+        || p(18).getBytes("GBK").length > 100
+        || p(19).getBytes("GBK").length > 100
+        || p(20).getBytes("GBK").length > 100
+        || p(21).getBytes("GBK").length > 100
+        || p(22).getBytes("GBK").length > 100
+        || p(23).getBytes("GBK").length > 100
+        || p(24).getBytes("GBK").length > 4000
+        || p(25).getBytes("GBK").length > 4000
+        || (if (p.length == 28) p(26) + p(27) else p(26)).getBytes("GBK").length > 4000)).coalesce(100, shuffle = true)
       .map(p => p(0) + fieldTerminate +
         p(1) + fieldTerminate +
         p(2) + fieldTerminate +
-        (if (p(3).length > 100) p(3).substring(1, 100) else p(3)) + fieldTerminate +
+        p(3) + fieldTerminate +
         p(4) + fieldTerminate +
         p(5) + fieldTerminate +
         p(6) + fieldTerminate +
-        (if (p(8).length > 100) p(8).substring(1, 100) else p(8)) + fieldTerminate +
-        (if (p(9).length > 100) p(9).substring(1, 100) else p(9)) + fieldTerminate +
-        (if (p(10).length > 100) p(10).substring(1, 100) else p(10)) + fieldTerminate +
+        p(8) + fieldTerminate +
+        p(9) + fieldTerminate +
+        p(10) + fieldTerminate +
         p(11) + fieldTerminate +
         p(12) + fieldTerminate +
-        (if (p(13).length > 100) p(13).substring(1, 100) else p(13)) + fieldTerminate +
+        p(13) + fieldTerminate +
         (if (p.length == 28) p(26) + p(27) else p(26)) + fieldTerminate +
         //p(26) + fieldTerminate +
         p(15) + fieldTerminate +
@@ -136,11 +163,11 @@ object UbhvrIpsHis {
         p(20) + fieldTerminate +
         p(21) + fieldTerminate +
         p(23) + fieldTerminate +
-        (if (p(24).length > 4000) p(24).substring(1, 4000) else p(24)) + fieldTerminate +
+        p(24) + fieldTerminate +
         p(25) + fieldTerminate +
         getCity(fixLength(p(15)), ipMaps) + fieldTerminate +
         p(19) + fieldTerminate +
-        (if (p(7).length > 100) p(7).substring(1, 100) else p(7)) + fieldTerminate +
+        p(7) + fieldTerminate +
         p(14) + fieldTerminate +
         p(18) + fieldTerminate +
         p(19) + fieldTerminate +

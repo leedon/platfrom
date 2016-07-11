@@ -11,7 +11,6 @@ import org.apache.spark.{SparkConf, SparkContext}
   */
 object StreamingHandler {
 
-
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("FlumeNG sink")
     val sc = new SparkContext(conf)
