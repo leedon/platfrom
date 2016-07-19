@@ -9,19 +9,9 @@ import org.joda.time.DateTime
 
 /**
   * Created by lubinsu on 2016/4/26
-  *
-  * 合并数据文件功能
   */
-object PutMerge {
+object TempProc {
 
-  /**
-    * 设定字符串的长度，不足的以特定字符补齐
-    *
-    * @param s 输入的字符串
-    * @param length 设定长度
-    * @param replace 填充字符
-    * @return
-    */
   def rpad(s: String, length: Int, replace: String): String = {
     var rt = s
     while (rt.length() < length) rt = rt.concat(replace)
@@ -85,7 +75,7 @@ object PutMerge {
 
 
     //delete old files
-    val regex = "(".concat(filesNameFormat).concat(")").r
+    /*val regex = "(".concat(filesNameFormat).concat(")").r
     val hdfsStatus = hdfs.listStatus(new Path(hdfsPath.concat(srcDir)))
     hdfsStatus.foreach(x => {
       x.getPath.getName match {
@@ -94,7 +84,7 @@ object PutMerge {
           hdfs.delete(x.getPath, true)
         case _ => ()
       }
-    })
+    })*/
 
     sc.stop()
   }

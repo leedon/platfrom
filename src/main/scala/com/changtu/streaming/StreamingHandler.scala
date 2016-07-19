@@ -12,7 +12,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 object StreamingHandler {
 
   def main(args: Array[String]) {
-    val conf = new SparkConf().setAppName("FlumeNG sink")
+    val conf = new SparkConf().setAppName("FlumeNG sink").setMaster("local[4]")
     val sc = new SparkContext(conf)
     val ssc = new StreamingContext(sc, Seconds(10))
 
