@@ -47,7 +47,6 @@ object TempProc {
     // 如果是针对大日志的合并，则将查询接口
     if (name == "biglog") {
 
-      println("biglog")
       val biglogFile = hdfsPath.concat(targetDir).concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH"))
       val queryLogFile = hdfsPath.concat("/user/hadoop/querylog/").concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH"))
       val srcFileRDD = sc.textFile(srcFiles)
@@ -58,7 +57,7 @@ object TempProc {
       val queryLogOutput = new Path(queryLogFile)
       if (hdfs.exists(queryLogOutput)) hdfs.delete(queryLogOutput, true)
 
-      println("merging files ")
+      println("Merging files ")
       srcFileRDD.map(_.split(fieldTerminate)).filter(p => filterStr.contains(p(0))).filter( p => p.length > 1).map(p => p.mkString(fieldTerminate).concat(rpad(fieldTerminate, 22 - p.length, fieldTerminate))).repartition(1).saveAsTextFile(queryLogFile)
       srcFileRDD.map(_.split(fieldTerminate)).filter(p => !filterStr.contains(p(0))).filter( p => p.length > 1).map(p => p.mkString(fieldTerminate).concat(rpad(fieldTerminate, 22 - p.length, fieldTerminate))).repartition(1).saveAsTextFile(biglogFile)
 

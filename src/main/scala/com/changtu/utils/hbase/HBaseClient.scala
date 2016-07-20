@@ -24,7 +24,7 @@ class HBaseClient(config: Configuration = HBaseConfiguration.create(), tablePath
                   limit: Option[Int] = None, verboseMode: Boolean = false, caching: Int = 5000) {
 
   val Log = com.twitter.logging.Logger.get()
-  val confHome = if (System.getenv("CONF_HOME") == "") "/appl/conf" else System.getenv("CONF_HOME")
+  val confHome = if (System.getenv("CONF_HOME") == "" || System.getenv("CONF_HOME") == null) "/appl/conf" else System.getenv("CONF_HOME")
 
   try {
     config.addResource(new Path(confHome + "/hbase-site.xml"))

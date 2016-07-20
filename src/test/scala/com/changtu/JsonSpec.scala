@@ -1,6 +1,6 @@
 package com.changtu
 
-import com.twitter.logging.Logger
+import com.twitter.logging.{Logger}
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 
@@ -17,7 +17,7 @@ class JsonSpec extends FlatSpec with Matchers {
     val jsonValue = Json.parse("{\"filter\":{\"page\":\"1\",\"localStartStations\":\"\",\"stopNames\":\"\",\"planTimes\":\"\",\"sort\":\"\",\"localYes\":\"\"},\"startCityId\":\"120628\",\"endCityId\":\"101329\",\"hasLines\":\"1\"}\t")
     val hasLines = (jsonValue \ "hasLines").as[String]
 
-    log.info(jsonValue.toString())
+    log.error(jsonValue.toString())
     hasLines should be("1")
   }
 

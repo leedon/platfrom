@@ -1,9 +1,8 @@
 package com.changtu.biglog
 
-import java.net.URI
-
-import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{FileSystem, Path}
+import com.changtu.utils.Logging
+import com.changtu.utils.hdfs.HDFSClient
+import org.apache.hadoop.fs.Path
 import org.apache.spark.{SparkConf, SparkContext}
 import org.joda.time.DateTime
 
@@ -12,13 +11,13 @@ import org.joda.time.DateTime
   *
   * 合并数据文件功能
   */
-object PutMerge {
+object PutMerge extends Logging {
 
   /**
     * 设定字符串的长度，不足的以特定字符补齐
     *
-    * @param s 输入的字符串
-    * @param length 设定长度
+    * @param s       输入的字符串
+    * @param length  设定长度
     * @param replace 填充字符
     * @return
     */
@@ -36,12 +35,10 @@ object PutMerge {
     }
 
     //namenode uri
-    val hdfsPath = "hdfs://nameservice1:8020"
     val fieldTerminate = "\001"
-    val hdfsURI = new URI(hdfsPath)
-    val hdfsConf = new Configuration()
-    val hdfs = FileSystem.get(hdfsURI, hdfsConf)
-    val conf = new SparkConf().setAppName("put merge")
+    val hdfs = HDFSClient.getHdfs
+    val hdfsPath = hdfs.getUri.toString
+    val conf = new SparkConf().setAppName("Put merge")
     val sc = new SparkContext(conf)
     val srcDir = args(0)
     val targetDir = args(2)
@@ -57,44 +54,36 @@ object PutMerge {
     // 如果是针对大日志的合并，则将查询接口
     if (name == "biglog") {
 
-      println("biglog")
       val biglogFile = hdfsPath.concat(targetDir).concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH"))
       val queryLogFile = hdfsPath.concat("/user/hadoop/querylog/").concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH"))
       val srcFileRDD = sc.textFile(srcFiles)
 
-      val biglogOutput = new Path(biglogFile)
-      if (hdfs.exists(biglogOutput)) hdfs.delete(biglogOutput, true)
+      // delete directory
+      HDFSClient.delete(biglogFile)
+      HDFSClient.delete(queryLogFile)
 
-      val queryLogOutput = new Path(queryLogFile)
-      if (hdfs.exists(queryLogOutput)) hdfs.delete(queryLogOutput, true)
-
-      println("merging files ")
-      srcFileRDD.map(_.split(fieldTerminate)).filter(p => filterStr.contains(p(0))).filter( p => p.length > 1).map(p => p.mkString(fieldTerminate).concat(rpad(fieldTerminate, 22 - p.length, fieldTerminate))).repartition(1).saveAsTextFile(queryLogFile)
-      srcFileRDD.map(_.split(fieldTerminate)).filter(p => !filterStr.contains(p(0))).filter( p => p.length > 1).map(p => p.mkString(fieldTerminate).concat(rpad(fieldTerminate, 22 - p.length, fieldTerminate))).repartition(1).saveAsTextFile(biglogFile)
+      logger.info("Merging files ")
+      srcFileRDD.map(_.split(fieldTerminate)).filter(p => filterStr.contains(p(0))).filter(p => p.length > 1).map(p => p.mkString(fieldTerminate).concat(rpad(fieldTerminate, 22 - p.length, fieldTerminate))).repartition(1).saveAsTextFile(queryLogFile)
+      srcFileRDD.map(_.split(fieldTerminate)).filter(p => !filterStr.contains(p(0))).filter(p => p.length > 1).map(p => p.mkString(fieldTerminate).concat(rpad(fieldTerminate, 22 - p.length, fieldTerminate))).repartition(1).saveAsTextFile(biglogFile)
 
     } else {
       val targetFile = hdfsPath.concat(targetDir).concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH"))
       val srcFileRDD = sc.textFile(srcFiles)
-      val output = new Path(targetFile)
 
-      if (hdfs.exists(output)) hdfs.delete(output, true)
+      HDFSClient.delete(targetFile)
 
-      println("merging files ")
+      logger.info("Merging files ")
       srcFileRDD.repartition(1).saveAsTextFile(targetFile)
     }
 
-
-    //delete old files
-    val regex = "(".concat(filesNameFormat).concat(")").r
-    val hdfsStatus = hdfs.listStatus(new Path(hdfsPath.concat(srcDir)))
-    hdfsStatus.foreach(x => {
-      x.getPath.getName match {
-        case regex(url) =>
-          println("deleting file : " + url)
-          hdfs.delete(x.getPath, true)
-        case _ => ()
-      }
-    })
+    //检查文件是否正常生成了
+    val p = new Path(hdfsPath.concat(targetDir).concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH")))
+    val fileStatus = hdfs.getFileStatus(p)
+    if (HDFSClient.du(fileStatus) > 1024L) {
+      //delete old files
+      val regex = "(".concat(filesNameFormat).concat(")").r
+      HDFSClient.deleteRegex(srcDir, regex)
+    }
 
     sc.stop()
   }
