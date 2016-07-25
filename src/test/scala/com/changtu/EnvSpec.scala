@@ -1,12 +1,13 @@
 package com.changtu
 
+import com.changtu.util.Logging
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * Created by lubinsu on 2016/6/13.
   * 检查环境配置是否正确
   */
-class EnvSpec extends FlatSpec with Matchers {
+class EnvSpec extends FlatSpec with Matchers with Logging {
 
   def rpad(s: String, length: Int, replace: String): String = {
     var rt = s
@@ -32,5 +33,11 @@ class EnvSpec extends FlatSpec with Matchers {
     val str = rpad("#####", 10, "#")
     println(str)
     str should be("##########")
+  }
+
+  it should "return regex str" in {
+    val url = "/ticket/querySchListOnPage.htm?endTypeId=2&endId=410283&planDate=2016-07-19&startCityUrl=hangzhoushi&endCityUrl=&page=1&localStartStations=&stopNames=&planTimes=&sort=&localYes=&preF=0"
+    val regex = "(startCityUrl=\\w*&)".r
+    logger.info((regex findFirstIn url).getOrElse("").replace("startCityUrl=", "").replace("&", ""))
   }
 }

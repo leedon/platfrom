@@ -1,7 +1,7 @@
 package com.changtu
 
-import com.changtu.utils.hdfs.HDFSClient
-import com.changtu.utils.spark.SparkClient
+import com.changtu.util.hdfs.HDFSUtils
+import com.changtu.util.spark.SparkClient
 import com.twitter.logging.Logger
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -14,7 +14,7 @@ class SparkClientSpec extends FlatSpec with Matchers {
 
   "Spark" should "get hdfs uri" in {
 
-    val uri = HDFSClient.hdfs.getUri.toString
+    val uri = HDFSUtils.hdfs.getUri.toString
     log.info(uri)
     uri should be("hdfs://nameservice1")
 

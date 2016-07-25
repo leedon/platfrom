@@ -1,7 +1,7 @@
 package com.changtu
 
-import com.changtu.utils.Logging
-import com.changtu.utils.hdfs.HDFSClient
+import com.changtu.util.Logging
+import com.changtu.util.hdfs.HDFSUtils
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.scalatest.{FlatSpec, Matchers}
@@ -31,8 +31,7 @@ class HDFSClientSpec extends FlatSpec with Matchers with Logging {
   val hdfs = FileSystem.get(conf)
 
   "HDFS client" should "create a file" in {
-    HDFSClient.createDirectory("/user/hadoop/test", deleteF = true) should be(true)
-    HDFSClient.release()
+    HDFSUtils.createDirectory("/user/hadoop/test", deleteF = true) should be(true)
   }
 
   it should "return the file's info " in {
@@ -40,7 +39,7 @@ class HDFSClientSpec extends FlatSpec with Matchers with Logging {
     val p = new Path("hdfs://nameservice1/user/hadoop/behavior/20160719/")
     val fileStatus = hdfs.getFileStatus(p)
 
-    val totalSize = HDFSClient.du(fileStatus)
+    val totalSize = HDFSUtils.du(fileStatus)
     logger.info("文件路径：" + fileStatus.getPath)
     logger.info("块的大小：" + fileStatus.getBlockSize)
     logger.info("文件所有者：" + fileStatus.getOwner + ":" + fileStatus.getGroup)
@@ -54,8 +53,12 @@ class HDFSClientSpec extends FlatSpec with Matchers with Logging {
   }
 
   it should "return the right hdfs uri" in {
-    HDFSClient.getHdfs.getUri.toString should be("hdfs://nameservice1")
+    HDFSUtils.getHdfs.getUri.toString should be("hdfs://nameservice1")
     val hdfsStatus = hdfs.listStatus(new Path(hdfs.getUri.toString.concat("/user/hadoop/behavior/20160720/")))
     hdfsStatus.foreach(p => println(p.getPath.getName))
+  }
+
+  it should "close hdfs connection" in {
+    HDFSUtils.release()
   }
 }

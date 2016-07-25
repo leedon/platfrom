@@ -1,6 +1,6 @@
 package com.changtu
 
-import com.changtu.utils.hbase.HBaseClient
+import com.changtu.util.hbase.HBaseClient
 import org.apache.hadoop.hbase.util.Bytes
 import org.scalatest.{FlatSpec, Matchers}
 
