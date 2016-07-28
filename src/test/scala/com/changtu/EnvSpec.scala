@@ -1,6 +1,7 @@
 package com.changtu
 
 import com.changtu.util.Logging
+import org.joda.time.DateTime
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
@@ -39,5 +40,16 @@ class EnvSpec extends FlatSpec with Matchers with Logging {
     val url = "/ticket/querySchListOnPage.htm?endTypeId=2&endId=410283&planDate=2016-07-19&startCityUrl=hangzhoushi&endCityUrl=&page=1&localStartStations=&stopNames=&planTimes=&sort=&localYes=&preF=0"
     val regex = "(startCityUrl=\\w*&)".r
     logger.info((regex findFirstIn url).getOrElse("").replace("startCityUrl=", "").replace("&", ""))
+  }
+
+  it should "return the right incF" in {
+
+    val incF = "Y"
+    val filesNameFormat = incF match {
+      case "Y" => "Y"
+      case "N" => "N"
+    }
+
+    filesNameFormat should be ("Y")
   }
 }

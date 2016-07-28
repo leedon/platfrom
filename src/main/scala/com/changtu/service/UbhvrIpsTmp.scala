@@ -1,5 +1,8 @@
 package com.changtu.service
 
+import java.text.SimpleDateFormat
+import java.util.Locale
+
 import com.changtu.util.hdfs.HDFSUtils
 import org.apache.hadoop.fs.Path
 import org.apache.spark.{SparkConf, SparkContext}
@@ -93,14 +96,30 @@ object UbhvrIpsTmp {
 
   def main(args: Array[String]) {
 
-    val hourDuration = args(0).toInt
+    if (args.length < 5) {
+      System.err.println("Usage: UbhvrIps <src> <dest> <tmpPath> <incF> <hourDuration>")
+      System.err.println("spark-submit --master yarn-cluster --executor-memory 5G --executor-cores 3 --driver-memory 2G --conf spark.default.parallelism=30 --num-executors 5 --class com.changtu.service.UbhvrIpsTmp /appl/scripts/e-business/platform/target/platform-1.1.jar  \"/user/hadoop/bigdata/test/\" \"/user/hadoop/bigdata/output/\" \"/user/hadoop/bigdata/tmp\" \"N\" \"-1\"")
+      System.exit(1)
+    }
+
+    val Array(src, dest, tmpPath, incF, hourDuration) = args
     val hdfs = HDFSUtils.getHdfs
     val hdfsPath = hdfs.getUri.toString
 
     //匹配文件名
-    val filesNameFormat = "behavior-{DATE_TIME}.[0-9]*\\.log".replace("{DATE_TIME}", DateTime.now().plusHours(hourDuration).toString("yyyyMMddHH"))
-    val srcFiles = hdfsPath.concat("/user/hadoop/behavior/hourly/").concat(filesNameFormat)
-    val targetFile = hdfsPath.concat("/user/hadoop/behavior/").concat(DateTime.now().plusHours(hourDuration).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration).toString("HH"))
+    val filesNameFormat = incF match {
+      case "Y" => "behavior-{DATE_TIME}.[0-9]*\\.log".replace("{DATE_TIME}", DateTime.now().plusHours(hourDuration.toInt).toString("yyyyMMddHH"))
+      case "N" => "*"
+    }
+
+    // TODO 上线时需要修改源目录：/user/hadoop/behavior/hourly/
+    val srcFiles = hdfsPath concat src concat filesNameFormat
+
+    // TODO 上线时需要修改目标目录：/user/hadoop/behavior/
+    val targetFile = incF match {
+      case "Y" => hdfsPath.concat(dest).concat(DateTime.now().plusHours(hourDuration.toInt).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration.toInt).toString("HH"))
+      case "N" => dest
+    }
 
     val conf = new SparkConf().setAppName("com.changtu.biglog.UbhvrIps")
     val sc = new SparkContext(conf)
@@ -132,8 +151,8 @@ object UbhvrIpsTmp {
 
     HDFSUtils.delete(targetFile)
 
-    //generate city_id
-    //过滤掉字段长度超出数据库对应长度的数据
+    // generate city_id
+    // 过滤掉字段长度超出数据库对应长度的数据
     val bhvrHourlyTmp = bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 36)
       .filter(p => !(p(0).getBytes("GBK").length > 200
         || p(1).getBytes("GBK").length > 100
@@ -161,7 +180,6 @@ object UbhvrIpsTmp {
         || p(23).getBytes("GBK").length > 100
         || p(24).getBytes("GBK").length > 4000
         || p(25).getBytes("GBK").length > 4000
-
         //在此新增9个字段，来源于之前的visit表和query表
         || p(26).getBytes("GBK").length > 4000
         || p(27).getBytes("GBK").length > 30
@@ -179,8 +197,14 @@ object UbhvrIpsTmp {
         // visitSourceId
         getVisitSourceId(p(24), visitSourceList))
 
+    // TODO 上线时需要修改目标目录： /user/hadoop/tts_bi/behavior/_tmp_
     //保存到临时文件夹
-    HDFSUtils.delete("/user/hadoop/tts_bi/behavior/_tmp_")
+    HDFSUtils.delete(tmpPath)
+
+    // val loc = new Locale("en")
+    // 日期格式如：Wed Jul 27 12:38:20 CST 2016
+    // val fm = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz y", loc)
+    // val targetFm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", loc)
 
     bhvrHourlyTmp.map(_.split(fieldTerminate))
       .map(p => p(0) + fieldTerminate +
@@ -221,17 +245,21 @@ object UbhvrIpsTmp {
         p(32) + fieldTerminate +
         p(33) + fieldTerminate +
         p(34) + fieldTerminate +
-        (if (p.length == 39) p(38) else p(37)) + fieldTerminate).saveAsTextFile(hdfsPath.concat("/user/hadoop/tts_bi/behavior/_tmp_"))
+        // TODO 上线时需要修改目标目录： /user/hadoop/tts_bi/behavior/_tmp_
+        (if (p.length == 39) p(38) else p(37))).saveAsTextFile(hdfsPath.concat(tmpPath))
 
-    //save to hdfs
+    // Save to hdfs
     bhvrHourlyTmp.repartition(1).saveAsTextFile(targetFile)
 
     //delete old files
-    val fileStatus = hdfs.getFileStatus(new Path(targetFile))
-    if (HDFSUtils.du(fileStatus) > 1024L) {
-      //delete old files
-      val regex = "(".concat(filesNameFormat).concat(")").r
-      HDFSUtils.deleteRegex("/user/hadoop/behavior/hourly/", regex)
+    // TODO 上线时取消注释
+    if (incF == "Y") {
+      val fileStatus = hdfs.getFileStatus(new Path(targetFile))
+      if (HDFSUtils.du(fileStatus) > 1024L) {
+        //delete old files
+        val regex = "(".concat(filesNameFormat).concat(")").r
+        HDFSUtils.deleteRegex("/user/hadoop/behavior/hourly/", regex)
+      }
     }
 
     sc.stop()

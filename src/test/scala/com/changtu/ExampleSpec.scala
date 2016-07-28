@@ -1,27 +1,22 @@
 package com.changtu
 
-import org.scalatest.{FlatSpec, Matchers}
+import java.text.SimpleDateFormat
+import java.util.{Date, Locale}
 
-import scala.collection.mutable.Stack
+import com.changtu.util.Logging
+import org.scalatest.{FlatSpec, Matchers}
 
 /**
   * 测试示例
   */
-class ExampleSpec extends FlatSpec with Matchers {
+class ExampleSpec extends FlatSpec with Matchers with Logging {
 
   "A Stack" should "pop values in last-in-first-out order" in {
-    val stack = new Stack[Int]
-    stack.push(1)
-    stack.push(2)
-    stack.pop() should be (2)
-    stack.pop() should be (1)
-  }
-
-  it should "throw NoSuchElementException if an empty stack is popped" in {
-    val emptyStack = new Stack[Int]
-    a [NoSuchElementException] should be thrownBy {
-      emptyStack.pop()
-    }
+    val loc = new Locale("en")
+    val fm = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz y", loc)
+    val tm = "Fri Jul 27 12:38:20 CST 2016"
+    val dt2 = fm.parse(tm)
+    println(dt2.toString)
   }
 
 }
