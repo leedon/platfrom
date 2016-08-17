@@ -1,18 +1,16 @@
 package com.changtu.service
 
-import java.text.SimpleDateFormat
-import java.util.Locale
-
 import com.changtu.util.hdfs.HDFSUtils
 import org.apache.hadoop.fs.Path
 import org.apache.spark.{SparkConf, SparkContext}
 import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 /**
   * Created by lubinsu on 5/13/2016
   * 用户行为日志处理程序
   */
-object UbhvrIpsTmp {
+object UbhvrHourly {
 
   //IP
   case class BiOdsCmsIps(starIp: String, endIp: String, cityId: Long)
@@ -93,15 +91,41 @@ object UbhvrIpsTmp {
     } else sourceIds.max
   }
 
+  def isDate(str: String, format: String): Boolean = {
+    val formatter = DateTimeFormat.forPattern(format)
+    try {
+      val dateTime: DateTime = DateTime.parse(str, formatter)
+      if (str.length == 23 || str.length == 0) {
+        true
+      } else false
+    } catch {
+      case ex: Exception =>
+        if (str.trim.length == 0) {
+          true
+        } else false
+    }
+  }
 
+
+  /**
+    *
+    * @param args src       需要处理的源文件目录，结尾必须加 / eg：/user/hadoop/behavior/hourly/
+    *             dest      hdfs上合并完文件保存路径 eg：/user/hadoop/behavior/ 如果 incF = "Y" 则目录后面会自动添加日和小时
+    *             或者 /user/hadoop/bigdata/output/
+    *             tmpPath   处理好的临时数据，用于导入Oracle eg：/user/hadoop/tts_bi/behavior/_tmp_
+    *             incF      是否是小时增量
+    *             hourDuration 递增或者往前推移几个小时 eg：-1
+    */
   def main(args: Array[String]) {
 
     if (args.length < 5) {
       System.err.println("Usage: UbhvrIps <src> <dest> <tmpPath> <incF> <hourDuration>")
-      System.err.println("spark-submit --master yarn-cluster --executor-memory 5G --executor-cores 3 --driver-memory 2G --conf spark.default.parallelism=30 --num-executors 5 --class com.changtu.service.UbhvrIpsTmp /appl/scripts/e-business/platform/target/platform-1.1.jar  \"/user/hadoop/bigdata/test/\" \"/user/hadoop/bigdata/output/\" \"/user/hadoop/bigdata/tmp\" \"N\" \"-1\"")
+      System.err.println("src       需要处理的源文件目录，结尾必须加 / eg：/user/hadoop/behavior/hourly/\ndest      hdfs上合并完文件保存路径 eg：/user/hadoop/behavior/ 如果 incF = \"Y\" 则目录后面会自动添加日和小时 或者 /user/hadoop/bigdata/output/\ntmpPath   处理好的临时数据，用于导入Oracle eg：/user/hadoop/tts_bi/behavior/_tmp_\nincF      是否是小时增量\nhourDuration 递增或者往前推移几个小时 eg：-1")
+      System.err.println("spark-submit --master yarn-cluster --executor-memory 5G --executor-cores 3 --driver-memory 2G --conf spark.default.parallelism=30 --num-executors 5 --class com.changtu.service.UbhvrHourly /appl/scripts/e-business/platform/target/platform-1.1.jar  \"/user/hadoop/bigdata/test/\" \"/user/hadoop/bigdata/output/\" \"/user/hadoop/tts_bi/behavior/_tmp_\" \"N\" \"-1\"")
       System.exit(1)
     }
 
+    // incF 是否增量数据，如果是(Y)增量数据的话，则根据时间增量匹配文件名
     val Array(src, dest, tmpPath, incF, hourDuration) = args
     val hdfs = HDFSUtils.getHdfs
     val hdfsPath = hdfs.getUri.toString
@@ -112,22 +136,29 @@ object UbhvrIpsTmp {
       case "N" => "*"
     }
 
-    // TODO 上线时需要修改源目录：/user/hadoop/behavior/hourly/
     val srcFiles = hdfsPath concat src concat filesNameFormat
 
-    // TODO 上线时需要修改目标目录：/user/hadoop/behavior/
     val targetFile = incF match {
       case "Y" => hdfsPath.concat(dest).concat(DateTime.now().plusHours(hourDuration.toInt).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration.toInt).toString("HH"))
       case "N" => dest
     }
 
-    val conf = new SparkConf().setAppName("com.changtu.biglog.UbhvrIps")
+    val srcBk = hdfsPath.concat("/user/hadoop/behavior/bk/").concat(DateTime.now().plusHours(hourDuration.toInt).toString("yyyyMMdd")).concat("/").concat(DateTime.now().plusHours(hourDuration.toInt).toString("HH"))
+
+    val conf = new SparkConf().setAppName("com.changtu.service.UbhvrHourly")
     val sc = new SparkContext(conf)
 
     val fieldTerminate = "\001"
 
     //读取用户行为文件和 ip-city 映射数据
     val bhvrHourly = sc.textFile(srcFiles).filter(!_.isEmpty)
+    if (incF == "Y") {
+      //保留源数据，以做比对
+      HDFSUtils.delete(srcBk)
+      bhvrHourly.repartition(1).saveAsTextFile(srcBk)
+    }
+
+
     val ipRdd = sc.textFile(hdfsPath.concat("/user/hadoop/tts_ods/tts_ods.bi_ods_cms_ips.log"))
       .filter(!_.isEmpty)
       .map(_.split(fieldTerminate))
@@ -148,11 +179,9 @@ object UbhvrIpsTmp {
     //将IP数据放到Map中
     val ipMaps = ipRdd.collectAsMap()
 
-
-    HDFSUtils.delete(targetFile)
-
     // generate city_id
     // 过滤掉字段长度超出数据库对应长度的数据
+
     val bhvrHourlyTmp = bhvrHourly.map(_.split(fieldTerminate)).filter(_.length >= 36)
       .filter(p => !(p(0).getBytes("GBK").length > 200
         || p(1).getBytes("GBK").length > 100
@@ -183,13 +212,14 @@ object UbhvrIpsTmp {
         //在此新增9个字段，来源于之前的visit表和query表
         || p(26).getBytes("GBK").length > 4000
         || p(27).getBytes("GBK").length > 30
+        || !isDate(p(27), "yyyy-MM-dd HH:mm:ss:SSS")
         || p(28).getBytes("GBK").length > 20
-        || p(29).getBytes("GBK").length > 10
+        || p(29).getBytes("GBK").length > 100
         || p(30).getBytes("GBK").length > 200
         || p(31).getBytes("GBK").length > 30
         || p(32).getBytes("GBK").length > 30
         || p(33).getBytes("GBK").length > 300
-        || p(34).getBytes("GBK").length > 20
+        || p(34).getBytes("GBK").length > 100
         || (if (p.length == 37) p(35) + p(36) else p(35)).getBytes("GBK").length > 4000)).coalesce(100, shuffle = true)
       .map(p => p.mkString(fieldTerminate) + fieldTerminate +
         //客户端IP对应的城市Id
@@ -197,7 +227,6 @@ object UbhvrIpsTmp {
         // visitSourceId
         getVisitSourceId(p(24), visitSourceList))
 
-    // TODO 上线时需要修改目标目录： /user/hadoop/tts_bi/behavior/_tmp_
     //保存到临时文件夹
     HDFSUtils.delete(tmpPath)
 
@@ -225,7 +254,11 @@ object UbhvrIpsTmp {
         p(16) + fieldTerminate +
         p(17) + fieldTerminate +
         p(20) + fieldTerminate +
-        p(21) + fieldTerminate +
+        (try {
+          p(21).toLong
+        } catch {
+          case e: Exception => ""
+        }).toString + fieldTerminate +
         p(23) + fieldTerminate +
         p(24) + fieldTerminate +
         p(25) + fieldTerminate +
@@ -245,14 +278,13 @@ object UbhvrIpsTmp {
         p(32) + fieldTerminate +
         p(33) + fieldTerminate +
         p(34) + fieldTerminate +
-        // TODO 上线时需要修改目标目录： /user/hadoop/tts_bi/behavior/_tmp_
         (if (p.length == 39) p(38) else p(37))).saveAsTextFile(hdfsPath.concat(tmpPath))
 
     // Save to hdfs
+    HDFSUtils.delete(targetFile)
     bhvrHourlyTmp.repartition(1).saveAsTextFile(targetFile)
 
     //delete old files
-    // TODO 上线时取消注释
     if (incF == "Y") {
       val fileStatus = hdfs.getFileStatus(new Path(targetFile))
       if (HDFSUtils.du(fileStatus) > 1024L) {

@@ -52,7 +52,7 @@ class KafkaConsumer(val zookeeper: String,
 }
 
 object ScalaConsumerExample extends App {
-  val example = new KafkaConsumer("bigdata1,bigdata2,bigdata4", "group", "snoopy", 10)
+  val example = new KafkaConsumer("bigdata1,bigdata2,bigdata4", "lubinsu_test", "behavior", 10)
   example.run(10)
 }
 

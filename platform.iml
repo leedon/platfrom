@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/conf" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -78,7 +79,7 @@
     <orderEntry type="library" name="Maven: org.apache.zookeeper:zookeeper:3.4.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-framework:2.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-client:2.6.0" level="project" />
-    <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.42" level="project" />
+    <orderEntry type="library" name="Maven: com.jcraft:jsch:0.1.51" level="project" />
     <orderEntry type="library" name="Maven: org.apache.curator:curator-recipes:2.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.htrace:htrace-core:3.0.4" level="project" />
     <orderEntry type="library" name="Maven: io.netty:netty:3.6.2.Final" level="project" />
@@ -197,5 +198,9 @@
     <orderEntry type="library" name="Maven: net.debasishg:redisclient_2.10:3.0" level="project" />
     <orderEntry type="library" name="Maven: commons-pool:commons-pool:1.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.flume.flume-ng-clients:flume-ng-log4jappender:1.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.jodd:jodd-core:3.7.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.ant:ant-jsch:1.9.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.ant:ant:1.9.7" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.ant:ant-launcher:1.9.7" level="project" />
   </component>
 </module>

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.changtu</groupId>
     <artifactId>platform</artifactId>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <inceptionYear>2008</inceptionYear>
     <properties>
         <scala.version>2.10.5</scala.version>
@@ -215,6 +215,26 @@
             <artifactId>flume-ng-log4jappender</artifactId>
             <version>1.6.0</version>
         </dependency>
+
+        <!-- 加密解密用 -->
+        <dependency>
+            <groupId>org.jodd</groupId>
+            <artifactId>jodd-core</artifactId>
+            <version>3.7.1</version>
+        </dependency>
+
+        <!-- ssh 用 JSCH -->
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-jsch</artifactId>
+            <version>1.9.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.51</version>
+        </dependency>
+
     </dependencies>
 
     <build>

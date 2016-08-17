@@ -1,6 +1,7 @@
 package com.changtu
 
 import com.changtu.util.Logging
+import com.changtu.util.host.HostUtils
 import org.joda.time.DateTime
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -51,5 +52,16 @@ class EnvSpec extends FlatSpec with Matchers with Logging {
     }
 
     filesNameFormat should be ("Y")
+  }
+  it should "return the formated time" in {
+
+    logger.info(DateTime.now().toString("yyyyMMddHHmmss"))
+  }
+
+  it should "return the right env" in {
+    val map = System.getenv()
+    logger.info(map.toString)
+
+    
   }
 }

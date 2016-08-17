@@ -1,6 +1,6 @@
 package com.changtu
 
-import com.twitter.logging.{Logger}
+import com.twitter.logging.Logger
 import org.scalatest.{FlatSpec, Matchers}
 import play.api.libs.json.Json
 
@@ -28,4 +28,5 @@ class JsonSpec extends FlatSpec with Matchers {
     log.info(jsonValue.toString())
     page should be("1")
   }
+
 }
