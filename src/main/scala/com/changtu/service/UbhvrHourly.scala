@@ -254,6 +254,7 @@ object UbhvrHourly {
         p(16) + fieldTerminate +
         p(17) + fieldTerminate +
         p(20) + fieldTerminate +
+        //过滤非数值型 FK_USER_ID
         (try {
           p(21).toLong
         } catch {
