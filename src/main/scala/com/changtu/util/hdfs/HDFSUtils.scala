@@ -141,9 +141,14 @@ object HDFSUtils extends AbstractFSClient {
     val output = new Path(path)
 
     if (hdfs.exists(output) && deleteF) {
+      //logger.info("File already exists. deleting ... ")
       delete(path, recursive = true)
-      hdfs.create(output)
-    } else hdfs.create(output)
+      hdfs.create(output).close()
+    } else if (!hdfs.exists(output)) {
+      hdfs.create(output).close()
+    } else if(hdfs.exists(output)) {
+      //logger.info("File already exists.")
+    }
 
     if (hdfs.exists(output)) {
       true
