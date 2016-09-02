@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.changtu</groupId>
     <artifactId>platform</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <inceptionYear>2008</inceptionYear>
     <properties>
         <scala.version>2.10.5</scala.version>
