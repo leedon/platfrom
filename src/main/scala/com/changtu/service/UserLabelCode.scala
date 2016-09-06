@@ -23,7 +23,7 @@ object UserLabelCode {
 
     //读取用户行为文件和 ip-city 映射数据
     val userLabels = sc.textFile(srcFiles).filter(!_.isEmpty)
-    val userLabelsRDD = userLabels.map(_.split(fieldTerminate)).filter(_.length == 5).filter(p => p(3) == "1")
+    val userLabelsRDD = userLabels.map(_.split(fieldTerminate)).filter(_.length == 5).filter(p => p(2) == "1")
       /*
       数据文件结构
       SELECT a.user_id || '_' || a.label_id user_label_id,
