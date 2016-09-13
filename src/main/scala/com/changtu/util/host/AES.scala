@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec
 import com.changtu.util.Logging
 import org.apache.commons.codec.binary.Base64
 
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 /**
   * ProviDES/CBC/PKCS5Padding functionality for encrypting and decrypting data with AES.

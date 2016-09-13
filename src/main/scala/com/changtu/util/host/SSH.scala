@@ -24,12 +24,12 @@ object SSH extends Logging {
     //设置第一次登陆的时候提示，可选值：(ask | yes | no)
     session.setConfig("StrictHostKeyChecking", "no")
     //设置登陆超时时间
-    session.connect(10000)
+    session.connect(5000)
 
     val openChannel = session.openChannel("exec").asInstanceOf[ChannelExec]
     openChannel.setCommand(command)
     //openChannel.setOutputStream(output)
-    openChannel.setPty(true)
+    openChannel.setPty(false)
     val input = openChannel.getInputStream
     openChannel.connect()
     val bufferReader = new BufferedReader(new InputStreamReader(input))
@@ -37,7 +37,7 @@ object SSH extends Logging {
     while (!(openChannel.isClosed || input.available() < 0)) {
       while (bufferReader.ready()) {
         val msg = bufferReader.readLine
-        //执行传入的函数
+        //执行传入的函数处理返回信息
         outputFum(msg, remoteMachine)
       }
       Thread.sleep(500)

@@ -5,6 +5,8 @@ import java.io.File
 import com.changtu.util.Logging
 import org.apache.commons.configuration.PropertiesConfiguration
 
+import scala.util.matching.Regex
+
 
 /**
   * Created by lubinsu on 8/15/2016.
