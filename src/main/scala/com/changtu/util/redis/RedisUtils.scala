@@ -7,9 +7,9 @@ import com.redis.RedisClient
   * Created by lubinsu on 9/9/2016.
   * Redis通用工具类
   */
-object RedisUtils {
+class RedisUtils(addr: String) {
 
-  val address = Configuration("platform.properties").getString("redis.server.test.1")
+  val address = Configuration("platform.properties").getString(addr)
   val host = address.split(":")(0)
   val port = address.split(":")(1).toInt
   val redisClient = new RedisClient(host, port)

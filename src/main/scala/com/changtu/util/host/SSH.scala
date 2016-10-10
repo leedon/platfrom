@@ -10,9 +10,11 @@ import com.jcraft.jsch.{ChannelExec, JSch}
   */
 object SSH extends Logging {
 
-  def apply(remoteMachine: String, userName: String, port: Int = 22, command: String, keyfile: String, password: String, outputFum: (String, String) => Unit = { (msg, host) =>
-    logger.info(msg)
-  }): Int = {
+  def apply(remoteMachine: String, userName: String, port: Int = 22,
+            command: String, keyfile: String, password: String,
+            outputFum: (String, String) => Unit = { (msg, host) =>
+              logger.info(msg)
+            }): Int = {
 
     val jsch = new JSch()
     //jsch.addIdentity(keyfile)

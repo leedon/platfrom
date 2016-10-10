@@ -21,7 +21,7 @@ import scala.util.Try
   *
   * {{{
   * import scala.util.Try
-  * import brix.crypto._
+  * import com.changtu.util.host.AES
   *
   * val decrypted = "data"
   * val secretKey = "key"

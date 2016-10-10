@@ -22,7 +22,7 @@ class HBaseSpec extends FlatSpec with Matchers {
 
   it should "get all label details of 872547" in {
 
-    val hbaseClient = new HBaseClient(tablePath = "bi_user_label"/*, verboseMode = true*/)
+    val hbaseClient = new HBaseClient(tablePath = "bi_user_label" /*, verboseMode = true*/)
 
     hbaseClient.scanPrefix("872547_", p => println(Bytes.toString(p.getValue(Bytes.toBytes("label_info"), Bytes.toBytes("label_code")))))
   }

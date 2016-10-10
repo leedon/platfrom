@@ -1,5 +1,7 @@
 package com.changtu.util.hbase
 
+import java.util.concurrent.Executors
+
 import com.changtu.util.ClusterEnv
 import org.apache.hadoop.fs.Path
 import org.apache.hadoop.hbase.HBaseConfiguration
@@ -20,7 +22,16 @@ object HbaseUtil extends Serializable with ClusterEnv {
       conf.addResource(new Path(confHome + "/hbase-site.xml"))
       conf.addResource(new Path(confHome + "/core-site.xml"))
   }
-  private val connection = ConnectionFactory.createConnection(conf)
 
-  def getHbaseConn: Connection = connection
+  def apply(threadCount: Int = 1): Connection = {
+    val executor = Executors.newFixedThreadPool(threadCount)
+    ConnectionFactory.createConnection(conf, executor)
+  }
+
+  /*val executor = Executors.newFixedThreadPool(10)
+  private val connection = ConnectionFactory.createConnection(conf, executor)*/
+  def getHbaseConn: Connection = {
+    val connection = ConnectionFactory.createConnection(conf)
+    connection
+  }
 }
